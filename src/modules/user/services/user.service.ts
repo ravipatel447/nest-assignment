@@ -1,29 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../Dtos/create-user.dto';
-import { UserInterface } from '../interfaces/user.interface';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../../../database/entities';
+import { Repository } from 'typeorm';
+import { UpdateUserDto } from '../Dtos';
 
 @Injectable()
 export class UserService {
-  gId = 1;
-  Users = new Map<number, UserInterface>();
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  createUser(createUserDto: CreateUserDto) {
-    this.Users.set(++this.gId, { ...createUserDto, id: this.gId });
+  async updateUser(userId: number, data: UpdateUserDto) {
+    const user = await this.findUserById(userId);
+    Object.assign(user, data);
+    return this.userRepo.save(user);
   }
 
-  getUser(id: number): UserInterface {
-    return this.Users.get(id);
+  async remove(userId: number) {
+    const user = await this.findUserById(userId);
+    return this.userRepo.remove(user);
   }
 
-  getUsers(): UserInterface[] {
-    return Array.from(this.Users.values());
+  async findUserById(userId: number) {
+    const user = await this.userRepo.findOneBy({ userId });
+    if (!user) {
+      throw new NotFoundException('User not found!');
+    }
+    return user;
   }
+  // getUser(id: number): UserInterface {}
 
-  updateUser(id: number, updateUserDto: CreateUserDto) {
-    this.Users.set(id, { ...updateUserDto, id });
-  }
+  // getUsers(): UserInterface[] {}
 
-  deleteUser(id: number) {
-    this.Users.delete(id);
-  }
+  // updateUser(id: number, updateUserDto: CreateUserDto) {}
+
+  // deleteUser(id: number) {}
 }

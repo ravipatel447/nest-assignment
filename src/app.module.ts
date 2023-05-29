@@ -9,7 +9,9 @@ import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
+import jwtConfig from './config/jwt.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      load: [databaseConfig],
+      load: [databaseConfig, jwtConfig],
       envFilePath: ['.env', '.developement.env'],
     }),
     TypeOrmModule.forRootAsync({
@@ -35,12 +37,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           username: configService.get('db.username'),
           password: configService.get('db.password'),
           database: configService.get('db.database'),
-          entities: [__dirname + '/database/entities/*.entity{.ts,.js}'],
+          entities: [__dirname + '/database/entities/index{.ts,.js}'],
           synchronize: true,
         };
       },
       inject: [ConfigService],
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

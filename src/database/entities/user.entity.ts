@@ -36,7 +36,7 @@ export class User {
   @OneToMany(() => Product, (product) => product.sellerId)
   products: Product[];
 
-  @OneToMany(() => Token, (token) => token.userId)
+  @OneToMany(() => Token, (token) => token.userId, { onDelete: 'CASCADE' })
   tokens: Token[];
 
   @OneToMany(() => Order, (order) => order.customerId)

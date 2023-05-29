@@ -18,10 +18,10 @@ export class Product {
   productName: string;
 
   @Column()
-  price: number;
+  productPrice: number;
 
-  @Column()
-  image: string;
+  @Column({ type: 'varchar' })
+  productImage: string;
 
   @ManyToOne(() => User, (user) => user.products)
   @JoinColumn({ name: 'sellerId', referencedColumnName: 'userId' })

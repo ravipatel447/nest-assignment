@@ -6,7 +6,7 @@ export class Token {
   @PrimaryColumn()
   token: string;
 
-  @ManyToOne(() => User, (user) => user.tokens)
+  @ManyToOne(() => User, (user) => user.tokens, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
   userId: User;
 }

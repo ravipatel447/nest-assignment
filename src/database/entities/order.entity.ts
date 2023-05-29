@@ -20,7 +20,7 @@ export class Order {
   @Column({ type: 'date' })
   orderDate: Date;
 
-  @Column()
+  @Column({ enum: orderStatus })
   status: orderStatus;
 
   @Column()

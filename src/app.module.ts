@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RoleModule } from './role/role.module';
-import { PermissionModule } from './permission/permission.module';
-import { UserModule } from './user/user.module';
-import { ProductModule } from './product/product.module';
-import { CartModule } from './cart/cart.module';
-import { OrderModule } from './order/order.module';
+import { RoleModule } from './modules/role/role.module';
+import { PermissionModule } from './modules/permission/permission.module';
+import { UserModule } from './modules/user/user.module';
+import { ProductModule } from './modules/product/product.module';
+import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -35,22 +35,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           username: configService.get('db.username'),
           password: configService.get('db.password'),
           database: configService.get('db.database'),
-          entities: [],
+          entities: [__dirname + '/database/entities/*.entity{.ts,.js}'],
           synchronize: true,
         };
       },
       inject: [ConfigService],
     }),
-    // TypeOrmModule.forRoot({
-    //   type: 'mysql',
-    //   host: 'localhost',
-    //   port: 3306,
-    //   username: 'root',
-    //   password: 'root',
-    //   database: 'test',
-    //   entities: [],
-    //   synchronize: true,
-    // }),
   ],
   controllers: [AppController],
   providers: [AppService],

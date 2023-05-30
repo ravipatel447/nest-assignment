@@ -11,7 +11,9 @@ import {
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto, LoginUserDto } from '../Dtos';
 import { Response } from 'express';
+import { Public } from 'src/decorators';
 
+@Public()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {

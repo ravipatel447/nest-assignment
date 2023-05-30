@@ -1,4 +1,5 @@
 import {
+  IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -7,22 +8,27 @@ import {
 
 export class UpdateUserDto {
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   firstName: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   lastName: string;
 
   @IsPhoneNumber('IN')
+  @IsNotEmpty()
   @IsOptional()
   phone: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   address: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   @MinLength(8)
   password: string;

@@ -33,4 +33,8 @@ export class ProductService {
     }
     return product;
   }
+
+  async findProducts() {
+    return this.productRepo.find({});
+  }
 }

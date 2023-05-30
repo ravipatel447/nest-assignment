@@ -20,7 +20,7 @@ export class Order {
   @Column({ type: 'date' })
   orderDate: Date;
 
-  @Column({ enum: orderStatus })
+  @Column({ type: 'enum', enum: orderStatus, default: orderStatus.Processing })
   status: orderStatus;
 
   @Column()

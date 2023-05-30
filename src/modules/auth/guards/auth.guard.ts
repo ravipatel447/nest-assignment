@@ -3,21 +3,28 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Token, User } from 'src/database/entities';
 import { Repository } from 'typeorm';
+
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly reflector: Reflector,
     @InjectRepository(Token) private tokenRepo: Repository<Token>,
     @InjectRepository(User) private userRepo: Repository<User>,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.get('isPublic', context.getClass());
+    const isPublicRoute = this.reflector.get('isPublic', context.getHandler());
+
+    if (isPublic || isPublicRoute) return true;
+
     const request = context.switchToHttp().getRequest();
 
     const token = request.cookies['authToken'];
-    console.log(token, ' this is token');
     if (!token) {
       throw new UnauthorizedException();
     }

@@ -1,19 +1,31 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { User } from 'src/database/entities';
 import { GetUser } from 'src/decorators';
+import { ProductService } from 'src/modules/product/services/product.service';
+import { CreateCartItemDto } from '../Dtos/createCartItem.dto';
 import { CartService } from '../services/cart.service';
 
 @Controller('cart')
 export class CartController {
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private productService: ProductService,
+  ) {}
   @Get('my')
-  getMyCart(@GetUser() user: User) {
-    return this.cartService.getCartIdOfUser(user);
+  async getMyCart(@GetUser() user: User) {
+    const cart = await this.cartService.getCartIdOfUser(user);
+    return this.cartService.getCartWithProducts(cart);
   }
 
-  @Get()
-  async getCartById(@GetUser() user: User) {
+  @Post('add')
+  async addToCart(@GetUser() user: User, @Body() body: CreateCartItemDto) {
     const cart = await this.cartService.getCartIdOfUser(user);
-    return this.cartService.getCartById(cart);
+    const product = await this.productService.findProductById(body.productId);
+    return this.cartService.addProductToCart(cart, product, body.quantity);
+  }
+
+  @Get('all')
+  async allCart() {
+    return this.cartService.getAllCart();
   }
 }

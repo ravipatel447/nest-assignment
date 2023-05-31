@@ -4,10 +4,10 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
-  ManyToMany,
-  JoinTable,
+  OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
-import { User, Order, Cart } from './';
+import { User, CartItem, OrderDetails } from './';
 
 @Entity()
 export class Product {
@@ -23,24 +23,23 @@ export class Product {
   @Column({ type: 'varchar' })
   productImage: string;
 
+  @Column()
+  sellerId: number;
+
   @ManyToOne(() => User, (user) => user.products)
   @JoinColumn({ name: 'sellerId', referencedColumnName: 'userId' })
-  sellerId: User;
+  seller: User;
 
-  @ManyToMany(() => Order, (order) => order.products)
-  orders: Order[];
-
-  @ManyToMany(() => Cart, (cart) => cart.products)
-  @JoinTable({
-    name: 'cartItem',
-    joinColumn: {
-      name: 'productId',
-      referencedColumnName: 'productId',
-    },
-    inverseJoinColumn: {
-      name: 'cartId',
-      referencedColumnName: 'cartId',
-    },
+  @OneToMany(() => OrderDetails, (OrderDetails) => OrderDetails.product, {
+    onDelete: 'SET NULL',
   })
-  carts: Cart[];
+  public OrderDetails: OrderDetails[];
+
+  @OneToMany(() => CartItem, (CartItem) => CartItem.product, {
+    cascade: true,
+  })
+  public cartItems: CartItem[];
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

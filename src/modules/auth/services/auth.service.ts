@@ -26,7 +26,7 @@ export class AuthService {
     const user = this.userRepo.create(data);
     await this.userRepo.save(user);
 
-    const cart = this.cartRepo.create({ customerId: user });
+    const cart = this.cartRepo.create({ customer: user });
     await this.cartRepo.save(cart);
 
     return this.generateAuthToken(user);
@@ -49,7 +49,7 @@ export class AuthService {
 
     const token = this.tokenRepo.create({
       token: jwtToken,
-      userId: user,
+      user,
     });
     await this.tokenRepo.save(token);
 

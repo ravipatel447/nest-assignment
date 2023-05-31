@@ -4,10 +4,9 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
-  ManyToMany,
-  JoinTable,
+  OneToMany,
 } from 'typeorm';
-import { User, Product } from './';
+import { User, OrderDetails } from './';
 import { orderStatus } from '../../constants';
 import { Type } from 'class-transformer';
 
@@ -26,21 +25,13 @@ export class Order {
   @Column()
   shippingAddress: string;
 
+  @Column()
+  customerId: number;
+
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'customerId' })
-  customerId: User;
+  customer: User;
 
-  @ManyToMany(() => Product)
-  @JoinTable({
-    name: 'orderDetails',
-    joinColumn: {
-      name: 'orderId',
-      referencedColumnName: 'orderId',
-    },
-    inverseJoinColumn: {
-      name: 'productId',
-      referencedColumnName: 'productId',
-    },
-  })
-  products: Product[];
+  @OneToMany(() => OrderDetails, (OrderDetails) => OrderDetails.order)
+  public OrderDetails: OrderDetails[];
 }

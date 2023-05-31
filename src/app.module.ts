@@ -40,6 +40,8 @@ import { APP_GUARD } from '@nestjs/core';
           password: configService.get('db.password'),
           database: configService.get('db.database'),
           entities: [__dirname + '/database/entities/index{.ts,.js}'],
+          logging: false,
+          migrations: [],
           synchronize: true,
         };
       },

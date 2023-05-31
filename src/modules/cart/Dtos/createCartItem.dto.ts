@@ -12,5 +12,5 @@ export class CreateCartItemDto {
   @Max(1000)
   @IsNotEmpty()
   @Type(() => Number)
-  productQnt: number;
+  quantity: number;
 }

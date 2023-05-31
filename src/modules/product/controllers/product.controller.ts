@@ -31,13 +31,17 @@ export class ProductController {
   }
 
   @Put(':id')
-  updateProduct(@Param('id') id: number, @Body() body: UpdateProductDto) {
-    return this.productService.update(id, body);
+  updateProduct(
+    @GetUser() user: User,
+    @Param('id') id: number,
+    @Body() body: UpdateProductDto,
+  ) {
+    return this.productService.update(id, body, user);
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id') id: number) {
-    return this.productService.delete(id);
+  deleteProduct(@GetUser() user: User, @Param('id') id: number) {
+    return this.productService.delete(id, user);
   }
 
   @Public()

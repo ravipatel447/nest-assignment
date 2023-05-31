@@ -2,32 +2,28 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,
-  ManyToMany,
-  JoinTable,
   OneToOne,
+  OneToMany,
+  Column,
 } from 'typeorm';
-import { User, Product } from './';
+import { User, CartItem } from './';
 
 @Entity()
 export class Cart {
   @PrimaryGeneratedColumn()
   cartId: number;
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'customerId', referencedColumnName: 'userId' })
-  customerId: User;
+  @Column()
+  customerId: number;
 
-  @ManyToMany(() => Product)
-  @JoinTable({
-    name: 'cartItem',
-    joinColumn: {
-      name: 'cartId',
-      referencedColumnName: 'cartId',
-    },
-    inverseJoinColumn: {
-      name: 'productId',
-      referencedColumnName: 'productId',
-    },
+  @OneToOne(() => User)
+  @JoinColumn({
+    name: 'customerId',
+    referencedColumnName: 'userId',
+    foreignKeyConstraintName: 'cartUser',
   })
-  products: Product[];
+  customer: User;
+
+  @OneToMany(() => CartItem, (CartItem) => CartItem.cart)
+  public cartItems: CartItem[];
 }

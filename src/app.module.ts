@@ -31,20 +31,18 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory(configService: ConfigService) {
-        return {
-          type: 'mysql',
-          host: configService.get('db.host'),
-          port: configService.get('db.port'),
-          username: configService.get('db.username'),
-          password: configService.get('db.password'),
-          database: configService.get('db.database'),
-          entities: [__dirname + '/database/entities/index{.ts,.js}'],
-          logging: false,
-          migrations: [],
-          synchronize: true,
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        name: 'default',
+        type: 'mysql',
+        host: configService.get('DB_HOST'),
+        port: +configService.get('DB_PORT'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_DATABASE'),
+        entities: [__dirname + '/database/entities/index{.ts,.js}'],
+        // entities: [__dirname + '/../**/*.entity.{js,ts}'],
+        synchronize: true,
+      }),
       inject: [ConfigService],
     }),
     AuthModule,

@@ -15,6 +15,11 @@ async function bootstrap() {
     }),
   );
   // app.useGlobalGuards(new AuthGuard(new JwtService(), app.get(Reflector)));
-  await app.listen(3000);
+
+  await app.listen(process.env.NESTJS_APP_LOCAL_PORT, () => {
+    console.log(
+      'listening on http://0.0.0.0:' + process.env.NESTJS_APP_LOCAL_PORT,
+    );
+  });
 }
 bootstrap();

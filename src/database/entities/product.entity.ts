@@ -8,6 +8,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { User, CartItem, OrderDetails } from './';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Product {
@@ -40,6 +41,7 @@ export class Product {
   })
   public cartItems: CartItem[];
 
+  @Exclude()
   @DeleteDateColumn()
   deletedAt?: Date;
 }

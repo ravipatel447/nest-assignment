@@ -23,9 +23,9 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() payload: CreateUserDto,
   ) {
-    const { token, user } = await this.authService.signUpUser(payload);
-    response.cookie('authToken', token);
-    return { user, token };
+    const res = await this.authService.signUpUser(payload);
+    response.cookie('authToken', res.data.token);
+    return res;
   }
 
   @Post('login')
@@ -34,8 +34,8 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() payload: LoginUserDto,
   ) {
-    const { token, user } = await this.authService.loginUser(payload);
-    response.cookie('authToken', token);
-    return { user, token };
+    const res = await this.authService.loginUser(payload);
+    response.cookie('authToken', res.data.token);
+    return res;
   }
 }

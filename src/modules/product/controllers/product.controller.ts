@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
@@ -14,6 +15,8 @@ import { ProductService } from '../services/product.service';
 import { UpdateProductDto } from '../Dtos';
 import { Public, GetUser } from 'src/decorators';
 import { User } from 'src/database/entities';
+import { GetProductsDto } from '../Dtos/getProducts.dto';
+import { productMessages } from 'src/messages/product.message';
 
 @Controller('product')
 @UseGuards(AuthGuard)
@@ -21,8 +24,10 @@ export class ProductController {
   constructor(private productService: ProductService) {}
   @Get()
   @Public()
-  getProducts() {
-    return this.productService.findProducts();
+  getProducts(@Query() query: GetProductsDto) {
+    const skip = query.page ? query.limit * (query.page - 1) : 0;
+    const limit = query.limit ? query.limit : 50;
+    return this.productService.findProducts(skip, limit);
   }
 
   @Post()
@@ -46,7 +51,11 @@ export class ProductController {
 
   @Public()
   @Get(':id')
-  getProduct(@Param('id') id: number) {
-    return this.productService.findProductById(id);
+  async getProduct(@Param('id') id: number) {
+    const product = await this.productService.findProductById(id);
+    return {
+      message: productMessages.success.PRODUCT_FETCH_SUCCESS,
+      data: product,
+    };
   }
 }

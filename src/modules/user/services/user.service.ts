@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../../database/entities';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from '../Dtos';
+import { userMessages } from 'src/messages';
 
 @Injectable()
 export class UserService {
@@ -11,26 +12,27 @@ export class UserService {
   async updateUser(userId: number, data: UpdateUserDto) {
     const user = await this.findUserById(userId);
     Object.assign(user, data);
-    return this.userRepo.save(user);
+    await this.userRepo.save(user);
+    return {
+      message: userMessages.success.USER_UPDATION_SUCCESS,
+      data: { user },
+    };
   }
 
   async remove(userId: number) {
     const user = await this.findUserById(userId);
-    return this.userRepo.remove(user);
+    await this.userRepo.remove(user);
+    return {
+      message: userMessages.success.USER_PROFILE_DELETE_SUCCESS,
+      data: { user },
+    };
   }
 
   async findUserById(userId: number) {
     const user = await this.userRepo.findOneBy({ userId });
     if (!user) {
-      throw new NotFoundException('User not found!');
+      throw new NotFoundException(userMessages.error.USER_NOT_FOUND);
     }
     return user;
   }
-  // getUser(id: number): UserInterface {}
-
-  // getUsers(): UserInterface[] {}
-
-  // updateUser(id: number, updateUserDto: CreateUserDto) {}
-
-  // deleteUser(id: number) {}
 }

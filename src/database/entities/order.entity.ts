@@ -5,10 +5,13 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  DeleteDateColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User, OrderDetails } from './';
 import { orderStatus } from '../../constants';
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 
 @Entity()
 export class Order {
@@ -34,4 +37,14 @@ export class Order {
 
   @OneToMany(() => OrderDetails, (OrderDetails) => OrderDetails.order)
   public OrderDetails: OrderDetails[];
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @Exclude()
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

@@ -4,6 +4,7 @@ import { Cart, Token, User } from 'src/database/entities';
 import { Repository } from 'typeorm';
 import { CreateUserDto, LoginUserDto } from '../Dtos';
 import { JwtService } from '@nestjs/jwt';
+import { authMessages } from 'src/messages';
 
 @Injectable()
 export class AuthService {
@@ -18,10 +19,12 @@ export class AuthService {
     const { email, phone } = data;
 
     const isEmailExist = await this.userRepo.findOneBy({ email });
-    if (isEmailExist) throw new BadRequestException('Email is already Exist');
+    if (isEmailExist)
+      throw new BadRequestException(authMessages.error.EMAIL_EXIST);
 
     const isPhoneExist = await this.userRepo.findOneBy({ phone });
-    if (isPhoneExist) throw new BadRequestException('Phone is already Exist');
+    if (isPhoneExist)
+      throw new BadRequestException(authMessages.error.PHONE_EXITST);
 
     const user = this.userRepo.create(data);
     await this.userRepo.save(user);
@@ -29,7 +32,14 @@ export class AuthService {
     const cart = this.cartRepo.create({ customer: user });
     await this.cartRepo.save(cart);
 
-    return this.generateAuthToken(user);
+    const token = await this.generateAuthToken(user);
+    return {
+      message: authMessages.success.USER_REGISTER_SUCCESS,
+      data: {
+        user,
+        token,
+      },
+    };
   }
 
   async loginUser(data: LoginUserDto) {
@@ -37,11 +47,16 @@ export class AuthService {
 
     const user = await this.userRepo.findOneBy({ email, password });
     if (!user)
-      throw new BadRequestException(
-        'username and password combination does not match',
-      );
+      throw new BadRequestException(authMessages.error.USER_LOGIN_FAILED);
 
-    return this.generateAuthToken(user);
+    const token = await this.generateAuthToken(user);
+    return {
+      message: authMessages.success.USER_LOGIN_SUCCESS,
+      data: {
+        user,
+        token,
+      },
+    };
   }
 
   async generateAuthToken(user: User) {
@@ -53,6 +68,6 @@ export class AuthService {
     });
     await this.tokenRepo.save(token);
 
-    return { user, token: token.token };
+    return token.token;
   }
 }

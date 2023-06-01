@@ -1,6 +1,9 @@
-import { Body, Controller, Delete, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { UpdateUserDto } from '../Dtos';
+import { GetUser } from 'src/decorators';
+import { User } from 'src/database/entities';
+import { userMessages } from 'src/messages';
 
 @Controller('user')
 export class UserController {
@@ -12,5 +15,14 @@ export class UserController {
   @Delete(':id')
   deleteUser(@Param('id') id: number) {
     return this.userService.remove(id);
+  }
+  @Get('me')
+  getUserProfile(@GetUser() user: User) {
+    return {
+      message: userMessages.success.USER_PROFILE_FETCH_SUCCESS,
+      data: {
+        user,
+      },
+    };
   }
 }

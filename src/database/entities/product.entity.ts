@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -36,10 +37,11 @@ export class Product {
   public OrderDetails: OrderDetails[];
 
   @OneToMany(() => CartItem, (CartItem) => CartItem.product, {
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   public cartItems: CartItem[];
 
+  @Exclude()
   @DeleteDateColumn()
   deletedAt?: Date;
 }

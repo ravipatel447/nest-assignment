@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { orderStatus } from 'src/constants';
 import {
@@ -8,6 +8,7 @@ import {
   OrderDetails,
   User,
 } from 'src/database/entities';
+import { orderMessages } from 'src/messages/order.message';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -38,15 +39,68 @@ export class OrderService {
         return this.orderDetailsRepo.save(orderDetail);
       }),
     );
-    return { message: 'your order Has been Successfully placed' };
+    return {
+      message: orderMessages.success.ORDER_CREATE_SUCCESS,
+      data: { order },
+    };
   }
 
-  async viewOrders(user: User) {
-    return this.orderRepo
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.OrderDetails', 'orderDetail')
-      .leftJoinAndSelect('orderDetail.product', 'product')
-      .where('order.customerId = :id', { id: user.userId })
+  async viewOrders(user: User, orderId?: number) {
+    return await this.orderRepo
+      .createQueryBuilder('o')
+      .leftJoinAndSelect('o.OrderDetails', 'od')
+      .leftJoinAndSelect('od.product', 'p')
+      .where('o.customerId = :id', { id: user.userId })
+      .andWhere(orderId ? 'o.orderId = :oid' : 'true', { oid: orderId })
+      .select([
+        'o.orderId',
+        'o.orderDate',
+        'o.status',
+        'o.shippingAddress',
+        'o.customerId',
+        'od.quantity',
+        'od.price',
+        'od.productName',
+        'p',
+      ])
       .getMany();
+  }
+
+  async cancelOrder(orderId: number, customer: User) {
+    const order = await this.findOrderById(orderId, { customer });
+    if (order.status === orderStatus.Delivered)
+      throw new BadRequestException(orderMessages.error.ORDER_CANCEL_INVALID);
+    order.status = orderStatus.Canceled;
+    await this.orderRepo.save(order);
+    return {
+      message: orderMessages.success.ORDER_CANCEL_SUCCESS,
+      data: order,
+    };
+  }
+
+  async updateStatusOfOrder(orderId: number, status: orderStatus) {
+    const order = await this.findOrderById(orderId);
+    const isAllowed =
+      Object.values(orderStatus).findIndex((val) => val === status) >
+      Object.values(orderStatus).findIndex((val) => val === order.status);
+    if (!isAllowed) {
+      throw new BadRequestException(
+        orderMessages.error.ORDER_STATUS_UPDATE_INVALID,
+      );
+    }
+    order.status = status;
+    await this.orderRepo.save(order);
+    return {
+      message: orderMessages.success.ORDER_STATUS_UPDATION_SUCCESS,
+      data: order,
+    };
+  }
+
+  async findOrderById(orderId: number, filters?: Partial<Order>) {
+    const order = await this.orderRepo.findOneBy({ orderId, ...filters });
+    if (!order) {
+      throw new BadRequestException(orderMessages.error.ORDER_NOT_FOUND);
+    }
+    return order;
   }
 }

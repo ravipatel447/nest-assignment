@@ -20,7 +20,6 @@ export class OrderDetails {
 
   @ManyToOne(() => Order, (order) => order.OrderDetails, {
     nullable: false,
-    onDelete: 'CASCADE',
   })
   @JoinColumn({
     name: 'orderId',

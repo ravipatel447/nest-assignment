@@ -61,10 +61,10 @@ export class ProductService {
   }
 
   async findProducts(skip: number, take: number) {
-    const products = this.productRepo.find({ skip, take });
+    const products = await this.productRepo.findAndCount({ skip, take });
     return {
       message: productMessages.success.PRODUCTS_FETCH_SUCCESS,
-      data: { products },
+      data: { products: products[0], totalProducts: products[1] },
     };
   }
 }

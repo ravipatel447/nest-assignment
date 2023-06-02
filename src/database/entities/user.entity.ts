@@ -5,8 +5,11 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   OneToOne,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Product, Order, Cart } from './';
+import { Role } from './role.entity';
 import { Token } from './token.entity';
 
 @Entity()
@@ -33,6 +36,9 @@ export class User {
   @Exclude()
   password: string;
 
+  @Column()
+  roleId: number;
+
   @OneToMany(() => Product, (product) => product.sellerId)
   products: Product[];
 
@@ -44,4 +50,8 @@ export class User {
 
   @OneToOne(() => Cart, (cart) => cart.customerId)
   cartId: Cart;
+
+  @ManyToOne(() => Role, (role) => role.users)
+  @JoinColumn({ name: 'roleId', referencedColumnName: 'roleId' })
+  role: Role;
 }

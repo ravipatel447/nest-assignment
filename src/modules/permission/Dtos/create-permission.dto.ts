@@ -1,8 +1,7 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsIn } from 'class-validator';
+import { PermissionsEnum } from 'src/constants';
 
 export class CreatePermissionDto {
-  @IsString()
-  @MaxLength(8)
-  @IsNotEmpty()
-  permissionName: string;
+  @IsIn(Object.values(PermissionsEnum))
+  permissionName: PermissionsEnum;
 }

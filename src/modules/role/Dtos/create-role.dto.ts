@@ -1,8 +1,7 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsIn } from 'class-validator';
+import { RolesEnum } from 'src/constants';
 
 export class CreateRoleDto {
-  @IsString()
-  @MaxLength(8)
-  @IsNotEmpty()
-  roleName: string;
+  @IsIn(Object.values(RolesEnum))
+  roleName: RolesEnum;
 }

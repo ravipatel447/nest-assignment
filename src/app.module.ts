@@ -10,10 +10,11 @@ import { OrderModule } from './modules/order/order.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+// import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -29,25 +30,26 @@ import { APP_GUARD } from '@nestjs/core';
       load: [databaseConfig, jwtConfig],
       envFilePath: ['.env', '.developement.env'],
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory(configService: ConfigService) {
-        return {
-          type: 'mysql',
-          host: configService.get('db.host'),
-          port: configService.get('db.port'),
-          username: configService.get('db.username'),
-          password: configService.get('db.password'),
-          database: configService.get('db.database'),
-          entities: [__dirname + '/database/entities/index{.ts,.js}'],
-          logging: false,
-          migrations: [],
-          synchronize: true,
-        };
-      },
-      inject: [ConfigService],
-    }),
+    // TypeOrmModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory(configService: ConfigService) {
+    //     return {
+    //       type: 'mysql',
+    //       host: configService.get('db.host'),
+    //       port: configService.get('db.port'),
+    //       username: configService.get('db.username'),
+    //       password: configService.get('db.password'),
+    //       database: configService.get('db.database'),
+    //       entities: [__dirname + '/database/entities/index{.ts,.js}'],
+    //       logging: false,
+    //       migrations: [],
+    //       synchronize: true,
+    //     };
+    //   },
+    //   inject: [ConfigService],
+    // }),
     AuthModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [

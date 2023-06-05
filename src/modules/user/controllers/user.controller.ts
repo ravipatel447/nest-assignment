@@ -14,13 +14,21 @@ import { User } from 'src/database/entities';
 import { userMessages } from 'src/messages';
 import { RequirePermissions } from 'src/decorators/requirePermission.decorator';
 import { PermissionsEnum } from 'src/constants';
+import {
+  ApiAcceptedResponse,
+  ApiBadRequestResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('User')
+@ApiBadRequestResponse({ description: 'bad requeset' })
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
   @RequirePermissions(PermissionsEnum.User, 'read')
+  @ApiAcceptedResponse({ description: 'user fetched successfully' })
   getLogedInUserProfile(@GetUser() user: User) {
     return {
       message: userMessages.success.USER_PROFILE_FETCH_SUCCESS,
@@ -31,24 +39,28 @@ export class UserController {
   }
 
   @Put('me')
+  @ApiAcceptedResponse({ description: 'user updated successfully' })
   @RequirePermissions(PermissionsEnum.User, 'update', 'OWNER')
   updateMyProfile(@GetUser() user: User, @Body() payload: UpdateUserDto) {
     return this.userService.updateUser(user.userId, payload);
   }
 
   @Put(':id')
+  @ApiAcceptedResponse({ description: 'user updated successfully' })
   @RequirePermissions(PermissionsEnum.User, 'update')
   updateUser(@Param('id') id: number, @Body() payload: UpdateUserDto) {
     return this.userService.updateUser(id, payload);
   }
 
   @Delete('me')
+  @ApiAcceptedResponse({ description: 'user deleted successfully' })
   @RequirePermissions(PermissionsEnum.User, 'delete', 'OWNER')
   deleteMyProfile(@GetUser() user: User) {
     return this.userService.remove(user.userId);
   }
 
   @Delete(':id')
+  @ApiAcceptedResponse({ description: 'user deleted successfully' })
   @RequirePermissions(PermissionsEnum.User, 'delete')
   deleteUser(@Param('id') id: number) {
     return this.userService.remove(id);
@@ -56,6 +68,7 @@ export class UserController {
 
   @Public()
   @Get(':id')
+  @ApiAcceptedResponse({ description: 'user fetched successfully' })
   async getUserProfile(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.findUserById(id);
     return {

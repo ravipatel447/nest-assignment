@@ -6,7 +6,7 @@ import { CreateUserDto, LoginUserDto } from '../Dtos';
 import { JwtService } from '@nestjs/jwt';
 import { authMessages } from 'src/messages';
 import { RolesEnum } from 'src/constants';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(
@@ -51,8 +51,12 @@ export class AuthService {
   async loginUser(data: LoginUserDto) {
     const { email, password } = data;
 
-    const user = await this.userRepo.findOneBy({ email, password });
+    const user = await this.userRepo.findOneBy({ email });
     if (!user)
+      throw new BadRequestException(authMessages.error.USER_LOGIN_FAILED);
+
+    const passwordCheck = await bcrypt.compare(password, user.password);
+    if (!passwordCheck)
       throw new BadRequestException(authMessages.error.USER_LOGIN_FAILED);
 
     const token = await this.generateAuthToken(user);

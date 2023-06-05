@@ -9,34 +9,50 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import {
+  ApiAcceptedResponse,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PermissionsEnum } from 'src/constants';
 import { RequirePermissions } from 'src/decorators/requirePermission.decorator';
 import { CreateRoleDto, UpdateUserRoleDto } from '../Dtos';
 import { RoleService } from '../services/role.service';
 
+@ApiTags('Role')
 @Controller('role')
+@ApiBadRequestResponse({ description: 'Bad Request' })
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get()
+  @ApiAcceptedResponse({ description: 'roles fetch successfully' })
   @RequirePermissions(PermissionsEnum.Role, 'read')
-  findAllPermissions() {
+  findAllRoles() {
     return this.roleService.findAllRoles();
   }
 
   @Post()
+  @ApiCreatedResponse({ description: 'roles created successfully' })
   @RequirePermissions(PermissionsEnum.Role, 'create')
-  createPermission(@Body() body: CreateRoleDto) {
+  createRole(@Body() body: CreateRoleDto) {
     return this.roleService.createRole(body.roleName);
   }
 
   @Patch('user')
+  @ApiAcceptedResponse({
+    description: `user's role has been changed successfully`,
+  })
   @RequirePermissions(PermissionsEnum.Role, 'update')
   updateRoleOfUser(@Body() body: UpdateUserRoleDto) {
     return this.roleService.changeRoleOfUser(body.userId, body.roleId);
   }
 
   @Put('id')
+  @ApiAcceptedResponse({
+    description: `roleName has been updated successfully`,
+  })
   @RequirePermissions(PermissionsEnum.Role, 'update')
   updateRoleName(
     @Param('id', ParseIntPipe) rid: number,
@@ -46,8 +62,11 @@ export class RoleController {
   }
 
   @Delete('id')
+  @ApiAcceptedResponse({
+    description: `roleName has been deleted successfully`,
+  })
   @RequirePermissions(PermissionsEnum.Role, 'delete')
-  deletePermission(@Param('id', ParseIntPipe) rid: number) {
+  deleteRole(@Param('id', ParseIntPipe) rid: number) {
     return this.roleService.deleteRole(rid);
   }
 }

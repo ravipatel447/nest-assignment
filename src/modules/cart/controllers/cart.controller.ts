@@ -8,6 +8,12 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
+import {
+  ApiAcceptedResponse,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PermissionsEnum } from 'src/constants';
 import { User } from 'src/database/entities';
 import { GetUser } from 'src/decorators';
@@ -16,6 +22,8 @@ import { ProductService } from 'src/modules/product/services/product.service';
 import { CreateCartItemDto } from '../Dtos/createCartItem.dto';
 import { CartService } from '../services/cart.service';
 
+@ApiTags('Cart')
+@ApiBadRequestResponse({ description: 'bad request' })
 @Controller('cart')
 export class CartController {
   constructor(
@@ -24,6 +32,7 @@ export class CartController {
   ) {}
 
   @Get('my')
+  @ApiAcceptedResponse({ description: 'cart fetched successfully' })
   @RequirePermissions(PermissionsEnum.Cart, 'read', 'OWNER')
   async getMyCart(@GetUser() user: User) {
     const cart = await this.cartService.getCartIdOfUser(user);
@@ -31,6 +40,7 @@ export class CartController {
   }
 
   @Post('cartItem')
+  @ApiCreatedResponse({ description: 'cartitem added successfully' })
   @RequirePermissions(PermissionsEnum.Cart, 'create', 'OWNER')
   async addToCart(@GetUser() user: User, @Body() body: CreateCartItemDto) {
     const cart = await this.cartService.getCartIdOfUser(user);
@@ -39,6 +49,7 @@ export class CartController {
   }
 
   @Patch('cartItem')
+  @ApiAcceptedResponse({ description: 'cartitem updated successfully' })
   @RequirePermissions(PermissionsEnum.Cart, 'update', 'OWNER')
   async updateProductInCart(
     @GetUser() user: User,
@@ -54,6 +65,7 @@ export class CartController {
   }
 
   @Delete('cartItem/:productId')
+  @ApiAcceptedResponse({ description: 'cartitem deleted successfully' })
   @RequirePermissions(PermissionsEnum.Cart, 'delete', 'OWNER')
   async removeProductFromCart(
     @GetUser() user: User,

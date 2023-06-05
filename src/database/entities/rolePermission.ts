@@ -9,16 +9,16 @@ export class RolePermission {
   @PrimaryColumn()
   permissionId: number;
 
-  @Column()
+  @Column({ default: false })
   create: boolean;
 
-  @Column()
+  @Column({ default: false })
   update: boolean;
 
-  @Column()
+  @Column({ default: false })
   read: boolean;
 
-  @Column()
+  @Column({ default: false })
   delete: boolean;
 
   @ManyToOne(() => Role, (role) => role.rolePermission, {

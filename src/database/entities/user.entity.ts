@@ -7,10 +7,14 @@ import {
   OneToOne,
   ManyToOne,
   JoinColumn,
+  BeforeUpdate,
+  BeforeInsert,
+  AfterLoad,
 } from 'typeorm';
 import { Product, Order, Cart } from './';
 import { Role } from './role.entity';
 import { Token } from './token.entity';
+import * as bcrypt from 'bcrypt';
 
 @Entity()
 export class User {
@@ -54,4 +58,19 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'roleId', referencedColumnName: 'roleId' })
   role: Role;
+
+  @Exclude()
+  private tempPassword: string;
+
+  @AfterLoad()
+  private loadTempPassword(): void {
+    this.tempPassword = this.password;
+  }
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async encryptPassword(): Promise<void> {
+    if (this.tempPassword !== this.password) {
+      this.password = await bcrypt.hash(this.password, 8);
+    }
+  }
 }

@@ -22,14 +22,15 @@ export class PermissionGuard implements CanActivate {
     const isPublicRoute = this.reflector.get('isPublic', context.getHandler());
 
     if (isPublic || isPublicRoute) return true;
+
     const askPermission = this.reflector.get(
       'askPermission',
       context.getHandler(),
     );
 
     if (!askPermission)
-      throw new BadRequestException(
-        'Permission has not been declared in Route',
+      throw new UnauthorizedException(
+        'You are not Unauthorize to perform this task',
       );
 
     if (askPermission.allowIfOwner === 'OWNER') return true;

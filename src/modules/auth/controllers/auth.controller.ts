@@ -12,8 +12,10 @@ import { AuthService } from '../services/auth.service';
 import { CreateUserDto, LoginUserDto } from '../Dtos';
 import { Response } from 'express';
 import { Public } from 'src/decorators';
+import { ApiTags } from '@nestjs/swagger';
 
 @Public()
+@ApiTags('Auth')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {

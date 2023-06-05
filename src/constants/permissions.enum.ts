@@ -4,4 +4,5 @@ export enum PermissionsEnum {
   Cart = 'Cart',
   Role = 'Role',
   Permission = 'Permission',
+  User = 'User',
 }

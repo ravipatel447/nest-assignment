@@ -45,12 +45,12 @@ export class OrderService {
     };
   }
 
-  async viewOrders(user: User, orderId?: number) {
+  async viewOrders(userId: number, orderId?: number) {
     return await this.orderRepo
       .createQueryBuilder('o')
       .leftJoinAndSelect('o.OrderDetails', 'od')
       .leftJoinAndSelect('od.product', 'p')
-      .where('o.customerId = :id', { id: user.userId })
+      .where('o.customerId = :id', { id: userId })
       .andWhere(orderId ? 'o.orderId = :oid' : 'true', { oid: orderId })
       .select([
         'o.orderId',
@@ -66,8 +66,8 @@ export class OrderService {
       .getMany();
   }
 
-  async cancelOrder(orderId: number, customer: User) {
-    const order = await this.findOrderById(orderId, { customer });
+  async cancelOrder(orderId: number, customerId: number) {
+    const order = await this.findOrderById(orderId, { customerId });
     if (order.status === orderStatus.Delivered)
       throw new BadRequestException(orderMessages.error.ORDER_CANCEL_INVALID);
     order.status = orderStatus.Canceled;

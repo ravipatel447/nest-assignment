@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Cart, Token, User } from 'src/database/entities';
+import { Cart, Role, Token, User } from 'src/database/entities';
 import { Repository } from 'typeorm';
 import { CreateUserDto, LoginUserDto } from '../Dtos';
 import { JwtService } from '@nestjs/jwt';
 import { authMessages } from 'src/messages';
+import { RolesEnum } from 'src/constants';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Token) private tokenRepo: Repository<Token>,
     @InjectRepository(Cart) private cartRepo: Repository<Cart>,
+    @InjectRepository(Role) private roleRepo: Repository<Role>,
     private jwtService: JwtService,
   ) {}
 
@@ -26,7 +28,11 @@ export class AuthService {
     if (isPhoneExist)
       throw new BadRequestException(authMessages.error.PHONE_EXITST);
 
+    const userRole = await this.roleRepo.findOneBy({
+      roleName: RolesEnum.USER,
+    });
     const user = this.userRepo.create(data);
+    user.role = userRole;
     await this.userRepo.save(user);
 
     const cart = this.cartRepo.create({ customer: user });

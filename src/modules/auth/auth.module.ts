@@ -2,13 +2,27 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { AuthController } from './controllers/auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cart, Token, User } from 'src/database/entities';
+import {
+  Cart,
+  Token,
+  User,
+  Permission,
+  Role,
+  RolePermission,
+} from 'src/database/entities';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Token, Cart]),
+    TypeOrmModule.forFeature([
+      User,
+      Token,
+      Cart,
+      Permission,
+      Role,
+      RolePermission,
+    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

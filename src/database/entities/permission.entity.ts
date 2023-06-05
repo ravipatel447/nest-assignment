@@ -6,7 +6,7 @@ export class Permission {
   @PrimaryGeneratedColumn()
   permissionId: number;
 
-  @Column()
+  @Column({ unique: true })
   permissionName: string;
 
   @OneToMany(

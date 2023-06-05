@@ -23,10 +23,17 @@ export class ProductService {
     };
   }
 
-  async update(productId: number, data: UpdateProductDto, user: User) {
-    const product = await this.findProductById(productId, {
-      sellerId: user.userId,
-    });
+  async update(
+    productId: number,
+    data: UpdateProductDto,
+    user: User,
+    alsoAllowedIfNotOwner = false,
+  ) {
+    const owner = {};
+    if (!alsoAllowedIfNotOwner) {
+      owner['sellerId'] = user.userId;
+    }
+    const product = await this.findProductById(productId, owner);
     Object.assign(product, data);
     await this.productRepo.save(product);
     return {
@@ -37,10 +44,12 @@ export class ProductService {
     };
   }
 
-  async delete(productId: number, user: User) {
-    const product = await this.findProductById(productId, {
-      sellerId: user.userId,
-    });
+  async delete(productId: number, user: User, alsoAllowedIfNotOwner = false) {
+    const owner = {};
+    if (!alsoAllowedIfNotOwner) {
+      owner['sellerId'] = user.userId;
+    }
+    const product = await this.findProductById(productId, owner);
     const cartItems = await this.cartItemRepo.findBy({
       productId: product.productId,
     });
@@ -62,6 +71,14 @@ export class ProductService {
 
   async findProducts(skip: number, take: number) {
     const products = await this.productRepo.findAndCount({ skip, take });
+    return {
+      message: productMessages.success.PRODUCTS_FETCH_SUCCESS,
+      data: { products: products[0], totalProducts: products[1] },
+    };
+  }
+
+  async findUsersProducts(userId: number) {
+    const products = await this.productRepo.findBy({ sellerId: userId });
     return {
       message: productMessages.success.PRODUCTS_FETCH_SUCCESS,
       data: { products: products[0], totalProducts: products[1] },

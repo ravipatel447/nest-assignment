@@ -1,7 +1,8 @@
-import { IsIn } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { PermissionsEnum } from 'src/constants';
 
 export class CreatePermissionDto {
-  @IsIn(Object.values(PermissionsEnum))
+  @IsString()
+  @IsNotEmpty()
   permissionName: PermissionsEnum;
 }

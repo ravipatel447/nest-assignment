@@ -74,11 +74,11 @@ export class OrderController {
     return this.orderService.cancelOrder(orderId, userId);
   }
 
-  @Patch(':id/status')
+  @Patch(':orderId/status')
   @ApiAcceptedResponse({ description: 'orders status updated successfully' })
   @RequirePermissions(PermissionsEnum.Order, 'update')
   async updateStatusOfOrder(
-    @Param('id', ParseIntPipe) orderId: number,
+    @Param('orderId', ParseIntPipe) orderId: number,
     @Body() body: UpdateOrderStatusDto,
   ) {
     return this.orderService.updateStatusOfOrder(orderId, body.status);

@@ -41,20 +41,20 @@ export class PermissionController {
     return this.permissionServie.findAllPermissions();
   }
 
-  @Put('id')
+  @Put(':permissionId')
   @ApiAcceptedResponse({ description: 'permisssionName updated successfully' })
   @RequirePermissions(PermissionsEnum.Permission, 'update')
   updatePermission(
-    @Param('id', ParseIntPipe) pid: number,
+    @Param('permissionId', ParseIntPipe) pid: number,
     @Body() body: CreatePermissionDto,
   ) {
     return this.permissionServie.updatePermission(pid, body.permissionName);
   }
 
-  @Delete('id')
+  @Delete(':permissionId')
   @ApiAcceptedResponse({ description: 'permisssionName deleted successfully' })
   @RequirePermissions(PermissionsEnum.Permission, 'delete')
-  deletePermission(@Param('id', ParseIntPipe) pid: number) {
+  deletePermission(@Param('permissionId', ParseIntPipe) pid: number) {
     return this.permissionServie.deletePermission(pid);
   }
 

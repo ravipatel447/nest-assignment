@@ -45,10 +45,10 @@ export class UserController {
     return this.userService.updateUser(user.userId, payload);
   }
 
-  @Put(':id')
+  @Put(':userId')
   @ApiAcceptedResponse({ description: 'user updated successfully' })
   @RequirePermissions(PermissionsEnum.User, 'update')
-  updateUser(@Param('id') id: number, @Body() payload: UpdateUserDto) {
+  updateUser(@Param('userId') id: number, @Body() payload: UpdateUserDto) {
     return this.userService.updateUser(id, payload);
   }
 
@@ -59,17 +59,17 @@ export class UserController {
     return this.userService.remove(user.userId);
   }
 
-  @Delete(':id')
+  @Delete(':userId')
   @ApiAcceptedResponse({ description: 'user deleted successfully' })
   @RequirePermissions(PermissionsEnum.User, 'delete')
-  deleteUser(@Param('id') id: number) {
+  deleteUser(@Param('userId') id: number) {
     return this.userService.remove(id);
   }
 
   @Public()
-  @Get(':id')
+  @Get(':userId')
   @ApiAcceptedResponse({ description: 'user fetched successfully' })
-  async getUserProfile(@Param('id', ParseIntPipe) id: number) {
+  async getUserProfile(@Param('userId', ParseIntPipe) id: number) {
     const user = await this.userService.findUserById(id);
     return {
       message: userMessages.success.USER_PROFILE_FETCH_SUCCESS,

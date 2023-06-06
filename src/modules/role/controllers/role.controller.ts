@@ -49,24 +49,24 @@ export class RoleController {
     return this.roleService.changeRoleOfUser(body.userId, body.roleId);
   }
 
-  @Put('id')
+  @Put(':roleId')
   @ApiAcceptedResponse({
     description: `roleName has been updated successfully`,
   })
   @RequirePermissions(PermissionsEnum.Role, 'update')
   updateRoleName(
-    @Param('id', ParseIntPipe) rid: number,
+    @Param('roleId', ParseIntPipe) roleId: number,
     @Body() body: CreateRoleDto,
   ) {
-    return this.roleService.updateRoleName(rid, body.roleName);
+    return this.roleService.updateRoleName(roleId, body.roleName);
   }
 
-  @Delete('id')
+  @Delete(':roleId')
   @ApiAcceptedResponse({
     description: `roleName has been deleted successfully`,
   })
   @RequirePermissions(PermissionsEnum.Role, 'delete')
-  deleteRole(@Param('id', ParseIntPipe) rid: number) {
+  deleteRole(@Param('roleId', ParseIntPipe) rid: number) {
     return this.roleService.deleteRole(rid);
   }
 }

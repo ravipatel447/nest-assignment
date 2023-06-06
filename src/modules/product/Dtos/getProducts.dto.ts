@@ -7,6 +7,7 @@ export class GetProductsDto {
     type: Number,
     description: 'page',
     example: 1,
+    required: false,
   })
   @IsNumber()
   @IsNotEmpty()
@@ -18,6 +19,7 @@ export class GetProductsDto {
     type: Number,
     description: 'limit',
     example: 20,
+    required: false,
   })
   @IsNumber()
   @IsNotEmpty()

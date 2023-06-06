@@ -60,47 +60,50 @@ export class ProductController {
     return this.productService.create(body, user);
   }
 
-  @Put('my/:id')
+  @Put('my/:productId')
   @ApiAcceptedResponse({ description: 'product updated successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'update', 'OWNER')
   updateMyProduct(
     @GetUser() user: User,
-    @Param('id') id: number,
+    @Param('productId') productId: number,
     @Body() body: UpdateProductDto,
   ) {
-    return this.productService.update(id, body, user);
+    return this.productService.update(productId, body, user);
   }
 
-  @Put(':id')
+  @Put(':productId')
   @ApiAcceptedResponse({ description: 'product updated successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'update')
   updateProduct(
     @GetUser() user: User,
-    @Param('id') id: number,
+    @Param('productId') productId: number,
     @Body() body: UpdateProductDto,
   ) {
-    return this.productService.update(id, body, user, true);
+    return this.productService.update(productId, body, user, true);
   }
 
-  @Delete('my/:id')
+  @Delete('my/:productId')
   @ApiAcceptedResponse({ description: 'product deleted successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'delete', 'OWNER')
-  deleteMyProduct(@GetUser() user: User, @Param('id') id: number) {
-    return this.productService.delete(id, user);
+  deleteMyProduct(
+    @GetUser() user: User,
+    @Param('productId') productId: number,
+  ) {
+    return this.productService.delete(productId, user);
   }
 
-  @Delete(':id')
+  @Delete(':productId')
   @ApiAcceptedResponse({ description: 'product deleted successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'delete')
-  deleteProduct(@GetUser() user: User, @Param('id') id: number) {
-    return this.productService.delete(id, user, true);
+  deleteProduct(@GetUser() user: User, @Param('productId') productId: number) {
+    return this.productService.delete(productId, user, true);
   }
 
   @Public()
-  @Get(':id')
+  @Get(':productId')
   @ApiAcceptedResponse({ description: 'products fetched successfully' })
-  async getProduct(@Param('id') id: number) {
-    const product = await this.productService.findProductById(id);
+  async getProduct(@Param('productId') productId: number) {
+    const product = await this.productService.findProductById(productId);
     return {
       message: productMessages.success.PRODUCT_FETCH_SUCCESS,
       data: product,
@@ -108,10 +111,10 @@ export class ProductController {
   }
 
   @Public()
-  @Get('seller/:id')
+  @Get('seller/:userId')
   @ApiAcceptedResponse({ description: 'products fetched successfully' })
-  async getProductsOfUser(@Param('id') id: number) {
-    const product = await this.productService.findUsersProducts(id);
+  async getProductsOfUser(@Param('userId') userId: number) {
+    const product = await this.productService.findUsersProducts(userId);
     return {
       message: productMessages.success.PRODUCT_FETCH_SUCCESS,
       data: product,

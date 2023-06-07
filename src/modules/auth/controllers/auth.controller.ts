@@ -1,26 +1,33 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   HttpCode,
   HttpStatus,
   Post,
   Res,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { CreateUserDto, LoginUserDto } from '../Dtos';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  LoginResponseDto,
+  SignUpResponseDto,
+} from '../Dtos';
 import { Response } from 'express';
 import { Public } from 'src/decorators';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Public()
 @ApiTags('Auth')
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
   @Post('signup')
+  @ApiOkResponse({
+    description: 'signedUp successfully ',
+    type: SignUpResponseDto,
+  })
   async signup(
     @Res({ passthrough: true }) response: Response,
     @Body() payload: CreateUserDto,
@@ -31,6 +38,10 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOkResponse({
+    description: 'loggedIn successfully ',
+    type: LoginResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   async login(
     @Res({ passthrough: true }) response: Response,

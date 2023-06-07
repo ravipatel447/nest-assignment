@@ -8,10 +8,11 @@ import {
   Post,
 } from '@nestjs/common';
 import {
-  ApiAcceptedResponse,
+  ApiOkResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PermissionsEnum } from 'src/constants';
 import { User } from 'src/database/entities';
@@ -22,6 +23,7 @@ import { UpdateOrderStatusDto } from '../Dtos/orderStatusUpdate.dto';
 import { OrderService } from '../services/order.service';
 
 @ApiTags('Order')
+@ApiBearerAuth()
 @ApiBadRequestResponse({ description: 'bad request' })
 @Controller('order')
 export class OrderController {
@@ -40,21 +42,21 @@ export class OrderController {
   }
 
   @Get('my')
-  @ApiAcceptedResponse({ description: 'orders fetched successfully' })
+  @ApiOkResponse({ description: 'orders fetched successfully' })
   @RequirePermissions(PermissionsEnum.Order, 'read', 'OWNER')
   async viewOrders(@GetUser() user: User) {
     return this.orderService.viewOrders(user.userId);
   }
 
   @Get('user/:userId')
-  @ApiAcceptedResponse({ description: 'orders fetched successfully' })
+  @ApiOkResponse({ description: 'orders fetched successfully' })
   @RequirePermissions(PermissionsEnum.Order, 'read')
   async viewUsersOrders(@Param('userId', ParseIntPipe) userId: number) {
     return this.orderService.viewOrders(userId);
   }
 
   @Patch('my/:orderId/cancel')
-  @ApiAcceptedResponse({ description: 'orders canceled successfully' })
+  @ApiOkResponse({ description: 'orders canceled successfully' })
   @RequirePermissions(PermissionsEnum.Order, 'update', 'OWNER')
   async cancelMyOrder(
     @GetUser() user: User,
@@ -64,7 +66,7 @@ export class OrderController {
   }
 
   @Patch('/user/:userId/:orderId/cancel')
-  @ApiAcceptedResponse({ description: 'orders canceled successfully' })
+  @ApiOkResponse({ description: 'orders canceled successfully' })
   @RequirePermissions(PermissionsEnum.Order, 'update')
   async cancelOrder(
     @GetUser() user: User,
@@ -75,7 +77,7 @@ export class OrderController {
   }
 
   @Patch(':orderId/status')
-  @ApiAcceptedResponse({ description: 'orders status updated successfully' })
+  @ApiOkResponse({ description: 'orders status updated successfully' })
   @RequirePermissions(PermissionsEnum.Order, 'update')
   async updateStatusOfOrder(
     @Param('orderId', ParseIntPipe) orderId: number,

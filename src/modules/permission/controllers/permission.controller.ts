@@ -10,10 +10,11 @@ import {
   Put,
 } from '@nestjs/common';
 import {
-  ApiAcceptedResponse,
+  ApiOkResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PermissionsEnum } from 'src/constants';
 import { RequirePermissions } from 'src/decorators/requirePermission.decorator';
@@ -22,6 +23,7 @@ import { CreatePermissionDto } from '../Dtos/create-permission.dto';
 import { PermissionService } from '../services/permission.service';
 
 @Controller('permission')
+@ApiBearerAuth()
 @ApiBadRequestResponse({ description: 'Bad Request' })
 @ApiTags('Permission')
 export class PermissionController {
@@ -35,14 +37,14 @@ export class PermissionController {
   }
 
   @Get()
-  @ApiAcceptedResponse({ description: 'permisssion fetched successfully' })
+  @ApiOkResponse({ description: 'permisssion fetched successfully' })
   @RequirePermissions(PermissionsEnum.Permission, 'read')
   findAllPermissions() {
     return this.permissionServie.findAllPermissions();
   }
 
   @Put(':permissionId')
-  @ApiAcceptedResponse({ description: 'permisssionName updated successfully' })
+  @ApiOkResponse({ description: 'permisssionName updated successfully' })
   @RequirePermissions(PermissionsEnum.Permission, 'update')
   updatePermission(
     @Param('permissionId', ParseIntPipe) pid: number,
@@ -52,21 +54,21 @@ export class PermissionController {
   }
 
   @Delete(':permissionId')
-  @ApiAcceptedResponse({ description: 'permisssionName deleted successfully' })
+  @ApiOkResponse({ description: 'permisssionName deleted successfully' })
   @RequirePermissions(PermissionsEnum.Permission, 'delete')
   deletePermission(@Param('permissionId', ParseIntPipe) pid: number) {
     return this.permissionServie.deletePermission(pid);
   }
 
   @Get('rolePermissions')
-  @ApiAcceptedResponse({ description: 'role permisssion fetched successfully' })
+  @ApiOkResponse({ description: 'role permisssion fetched successfully' })
   @RequirePermissions(PermissionsEnum.Permission, 'read')
   getAllrolePermission() {
     return this.permissionServie.findAllRolePermission();
   }
 
   @Patch('rolePermission')
-  @ApiAcceptedResponse({
+  @ApiOkResponse({
     description: 'role permisssion hasbeen updated successfully',
   })
   @RequirePermissions(PermissionsEnum.Permission, 'update')

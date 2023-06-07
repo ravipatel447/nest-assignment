@@ -20,14 +20,15 @@ import { productMessages } from 'src/messages/product.message';
 import { RequirePermissions } from 'src/decorators/requirePermission.decorator';
 import { PermissionsEnum } from 'src/constants';
 import {
-  ApiAcceptedResponse,
+  ApiOkResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
-@Controller('product')
 @ApiTags('Product')
+@Controller('product')
 @ApiBadRequestResponse({ description: 'bad request' })
 @UseGuards(AuthGuard)
 export class ProductController {
@@ -35,16 +36,17 @@ export class ProductController {
 
   @Get()
   @Public()
-  @ApiAcceptedResponse({ description: 'products fetched successfully' })
+  @ApiOkResponse({ description: 'products fetched successfully' })
   getProducts(@Query() query: GetProductsDto) {
     const skip = query.page ? query.limit * (query.page - 1) : 0;
     const limit = query.limit ? query.limit : 50;
     return this.productService.findProducts(skip, limit);
   }
 
-  @RequirePermissions(PermissionsEnum.Product, 'read', 'OWNER')
-  @ApiAcceptedResponse({ description: 'product fetched successfully' })
   @Get('my')
+  @ApiBearerAuth()
+  @RequirePermissions(PermissionsEnum.Product, 'read', 'OWNER')
+  @ApiOkResponse({ description: 'product fetched successfully' })
   async getMyProducts(@GetUser() user: User) {
     const product = await this.productService.findUsersProducts(user.userId);
     return {
@@ -54,14 +56,19 @@ export class ProductController {
   }
 
   @Post()
-  @ApiCreatedResponse({ description: 'product created successfully' })
+  @ApiBearerAuth()
+  @ApiCreatedResponse({
+    description: 'product created successfully',
+    type: CreateProductDto,
+  })
   @RequirePermissions(PermissionsEnum.Product, 'create')
   createProduct(@GetUser() user: User, @Body() body: CreateProductDto) {
     return this.productService.create(body, user);
   }
 
   @Put('my/:productId')
-  @ApiAcceptedResponse({ description: 'product updated successfully' })
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'product updated successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'update', 'OWNER')
   updateMyProduct(
     @GetUser() user: User,
@@ -72,7 +79,8 @@ export class ProductController {
   }
 
   @Put(':productId')
-  @ApiAcceptedResponse({ description: 'product updated successfully' })
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'product updated successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'update')
   updateProduct(
     @GetUser() user: User,
@@ -83,7 +91,8 @@ export class ProductController {
   }
 
   @Delete('my/:productId')
-  @ApiAcceptedResponse({ description: 'product deleted successfully' })
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'product deleted successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'delete', 'OWNER')
   deleteMyProduct(
     @GetUser() user: User,
@@ -93,7 +102,8 @@ export class ProductController {
   }
 
   @Delete(':productId')
-  @ApiAcceptedResponse({ description: 'product deleted successfully' })
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'product deleted successfully' })
   @RequirePermissions(PermissionsEnum.Product, 'delete')
   deleteProduct(@GetUser() user: User, @Param('productId') productId: number) {
     return this.productService.delete(productId, user, true);
@@ -101,7 +111,7 @@ export class ProductController {
 
   @Public()
   @Get(':productId')
-  @ApiAcceptedResponse({ description: 'products fetched successfully' })
+  @ApiOkResponse({ description: 'products fetched successfully' })
   async getProduct(@Param('productId') productId: number) {
     const product = await this.productService.findProductById(productId);
     return {
@@ -112,7 +122,7 @@ export class ProductController {
 
   @Public()
   @Get('seller/:userId')
-  @ApiAcceptedResponse({ description: 'products fetched successfully' })
+  @ApiOkResponse({ description: 'products fetched successfully' })
   async getProductsOfUser(@Param('userId') userId: number) {
     const product = await this.productService.findUsersProducts(userId);
     return {

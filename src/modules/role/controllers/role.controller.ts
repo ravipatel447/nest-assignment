@@ -10,10 +10,11 @@ import {
   Put,
 } from '@nestjs/common';
 import {
-  ApiAcceptedResponse,
+  ApiOkResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PermissionsEnum } from 'src/constants';
 import { RequirePermissions } from 'src/decorators/requirePermission.decorator';
@@ -21,13 +22,14 @@ import { CreateRoleDto, UpdateUserRoleDto } from '../Dtos';
 import { RoleService } from '../services/role.service';
 
 @ApiTags('Role')
+@ApiBearerAuth()
 @Controller('role')
 @ApiBadRequestResponse({ description: 'Bad Request' })
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get()
-  @ApiAcceptedResponse({ description: 'roles fetch successfully' })
+  @ApiOkResponse({ description: 'roles fetch successfully' })
   @RequirePermissions(PermissionsEnum.Role, 'read')
   findAllRoles() {
     return this.roleService.findAllRoles();
@@ -41,7 +43,7 @@ export class RoleController {
   }
 
   @Patch('user')
-  @ApiAcceptedResponse({
+  @ApiOkResponse({
     description: `user's role has been changed successfully`,
   })
   @RequirePermissions(PermissionsEnum.Role, 'update')
@@ -50,7 +52,7 @@ export class RoleController {
   }
 
   @Put(':roleId')
-  @ApiAcceptedResponse({
+  @ApiOkResponse({
     description: `roleName has been updated successfully`,
   })
   @RequirePermissions(PermissionsEnum.Role, 'update')
@@ -62,7 +64,7 @@ export class RoleController {
   }
 
   @Delete(':roleId')
-  @ApiAcceptedResponse({
+  @ApiOkResponse({
     description: `roleName has been deleted successfully`,
   })
   @RequirePermissions(PermissionsEnum.Role, 'delete')

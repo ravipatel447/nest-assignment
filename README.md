@@ -32,6 +32,22 @@
 $ npm install
 ```
 
+## Setup
+
+```bash
+# setup database
+$ npm run start
+
+# exit 
+$ ctrl + c
+
+# running migrations
+$ npm run migration:run
+
+# start development
+$ npm run start
+```
+
 ## Running the app
 
 ```bash

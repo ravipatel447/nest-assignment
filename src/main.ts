@@ -11,7 +11,7 @@ import * as basicAuth from 'express-basic-auth';
 const baseUrl = '/api';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.use(helmet());
   app.use(morgan('dev'));
 

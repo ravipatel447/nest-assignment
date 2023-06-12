@@ -28,7 +28,6 @@ export class AuthGuard implements CanActivate {
       request.cookies['authToken'] ||
       request.headers['authorization']?.split(' ')[1];
 
-    console.log(token);
     if (!token) {
       throw new UnauthorizedException();
     }

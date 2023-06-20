@@ -16,7 +16,18 @@ import { AuthGuard } from './modules/auth/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { dataSourceOptions } from './database/dataSource';
 import { PermissionGuard } from './modules/auth/guards/permission.guard';
-
+let envFileName = '.env';
+switch (process.env['NODE_ENV']) {
+  case 'DEVELOPMENT':
+    envFileName = '.dev.env';
+    break;
+  case 'TEST':
+    envFileName = '.test.env';
+    break;
+  default:
+    envFileName = '.env';
+    break;
+}
 @Module({
   imports: [
     RoleModule,
@@ -29,7 +40,7 @@ import { PermissionGuard } from './modules/auth/guards/permission.guard';
       cache: true,
       isGlobal: true,
       load: [databaseConfig, jwtConfig],
-      envFilePath: ['.env', '.developement.env'],
+      envFilePath: [envFileName],
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,

@@ -2,7 +2,7 @@ import { RolesEnum } from 'src/constants';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { Permission, Role, RolePermission, User } from '../entities';
 import { roleSeed, permissionSeed, RolePermissionUpdate } from '../seeds';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 export class Setup1686826780362 implements MigrationInterface {
   name = 'Setup1686826780362';
   private async bulkInsert(queryRunner: QueryRunner, Entity, EntityData) {

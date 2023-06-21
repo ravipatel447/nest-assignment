@@ -14,7 +14,7 @@ import {
 import { Product, Order, Cart } from './';
 import { Role } from './role.entity';
 import { Token } from './token.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Entity()
 export class User {

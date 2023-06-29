@@ -1,41 +1,54 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   HttpCode,
   HttpStatus,
   Post,
   Res,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { CreateUserDto, LoginUserDto } from '../Dtos';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  LoginResponseDto,
+  SignUpResponseDto,
+} from '../Dtos';
 import { Response } from 'express';
 import { Public } from 'src/decorators';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Public()
-@UseInterceptors(ClassSerializerInterceptor)
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
   @Post('signup')
+  @ApiOkResponse({
+    description: 'signedUp successfully ',
+    type: SignUpResponseDto,
+  })
   async signup(
     @Res({ passthrough: true }) response: Response,
     @Body() payload: CreateUserDto,
   ) {
-    const { token, user } = await this.authService.signUpUser(payload);
-    response.cookie('authToken', token);
-    return { user, token };
+    const res = await this.authService.signUpUser(payload);
+    response.cookie('authToken', res.data.token);
+    return res;
   }
 
   @Post('login')
+  @ApiOkResponse({
+    description: 'loggedIn successfully ',
+    type: LoginResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   async login(
     @Res({ passthrough: true }) response: Response,
     @Body() payload: LoginUserDto,
   ) {
-    const { token, user } = await this.authService.loginUser(payload);
-    response.cookie('authToken', token);
-    return { user, token };
+    const res = await this.authService.loginUser(payload);
+    response.cookie('authToken', res.data.token);
+    return res;
   }
 }

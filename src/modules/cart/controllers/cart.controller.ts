@@ -3,30 +3,47 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Delete,
   Param,
   ParseIntPipe,
-  Patch,
 } from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { PermissionsEnum } from 'src/constants';
 import { User } from 'src/database/entities';
 import { GetUser } from 'src/decorators';
+import { RequirePermissions } from 'src/decorators/requirePermission.decorator';
 import { ProductService } from 'src/modules/product/services/product.service';
 import { CreateCartItemDto } from '../Dtos/createCartItem.dto';
 import { CartService } from '../services/cart.service';
 
+@ApiTags('Cart')
+@ApiBearerAuth()
+@ApiBadRequestResponse({ description: 'bad request' })
 @Controller('cart')
 export class CartController {
   constructor(
     private cartService: CartService,
     private productService: ProductService,
   ) {}
+
   @Get('my')
+  @ApiOkResponse({ description: 'cart fetched successfully' })
+  @RequirePermissions(PermissionsEnum.Cart, 'read', 'OWNER')
   async getMyCart(@GetUser() user: User) {
     const cart = await this.cartService.getCartIdOfUser(user);
     return this.cartService.getCartWithProducts(cart);
   }
 
   @Post('cartItem')
+  @ApiCreatedResponse({ description: 'cartitem added successfully' })
+  @RequirePermissions(PermissionsEnum.Cart, 'create', 'OWNER')
   async addToCart(@GetUser() user: User, @Body() body: CreateCartItemDto) {
     const cart = await this.cartService.getCartIdOfUser(user);
     const product = await this.productService.findProductById(body.productId);
@@ -34,6 +51,8 @@ export class CartController {
   }
 
   @Patch('cartItem')
+  @ApiOkResponse({ description: 'cartitem updated successfully' })
+  @RequirePermissions(PermissionsEnum.Cart, 'update', 'OWNER')
   async updateProductInCart(
     @GetUser() user: User,
     @Body() body: CreateCartItemDto,
@@ -48,6 +67,8 @@ export class CartController {
   }
 
   @Delete('cartItem/:productId')
+  @ApiOkResponse({ description: 'cartitem deleted successfully' })
+  @RequirePermissions(PermissionsEnum.Cart, 'delete', 'OWNER')
   async removeProductFromCart(
     @GetUser() user: User,
     @Param('productId', ParseIntPipe) productId: number,
@@ -55,10 +76,5 @@ export class CartController {
     const cart = await this.cartService.getCartIdOfUser(user);
     const product = await this.productService.findProductById(productId);
     return this.cartService.removeProductFromCart(cart, product);
-  }
-
-  @Get('all')
-  async allCart() {
-    return this.cartService.getAllCart();
   }
 }

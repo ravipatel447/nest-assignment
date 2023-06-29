@@ -7,14 +7,27 @@ import { UserModule } from './modules/user/user.module';
 import { ProductModule } from './modules/product/product.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
-
+import { dataSourceOptions } from './database/dataSource';
+import { PermissionGuard } from './modules/auth/guards/permission.guard';
+let envFileName = '.env';
+switch (process.env['NODE_ENV']) {
+  case 'DEVELOPMENT':
+    envFileName = '.dev.env';
+    break;
+  case 'TEST':
+    envFileName = '.test.env';
+    break;
+  default:
+    envFileName = '.env';
+    break;
+}
 @Module({
   imports: [
     RoleModule,
@@ -27,26 +40,9 @@ import { APP_GUARD } from '@nestjs/core';
       cache: true,
       isGlobal: true,
       load: [databaseConfig, jwtConfig],
-      envFilePath: ['.env', '.developement.env'],
+      envFilePath: [envFileName],
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory(configService: ConfigService) {
-        return {
-          type: 'mysql',
-          host: configService.get('db.host'),
-          port: configService.get('db.port'),
-          username: configService.get('db.username'),
-          password: configService.get('db.password'),
-          database: configService.get('db.database'),
-          entities: [__dirname + '/database/entities/index{.ts,.js}'],
-          logging: false,
-          migrations: [],
-          synchronize: true,
-        };
-      },
-      inject: [ConfigService],
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
   ],
   controllers: [AppController],
@@ -56,6 +52,11 @@ import { APP_GUARD } from '@nestjs/core';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    },
   ],
 })
 export class AppModule {}
+//

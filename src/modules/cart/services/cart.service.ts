@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cart, CartItem, Product, User } from 'src/database/entities';
+import { cartMessages } from 'src/messages';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -22,7 +23,35 @@ export class CartService {
       cartItem = this.cartItemRepo.create({ cart, product, quantity });
     }
     await this.cartItemRepo.save(cartItem);
-    return { message: 'product has been added' };
+    return { message: cartMessages.success.CART_ADD_PRODUCT_SUCCESS, data: {} };
+  }
+
+  async updateProductQntInCart(cart: Cart, product, quantity: number) {
+    if (quantity === 0) return this.removeProductFromCart(cart, product);
+    const cartItem = await this.findCartItem(cart, product);
+    cartItem.quantity = quantity;
+    await this.cartItemRepo.save(cartItem);
+    return {
+      message: cartMessages.success.CART_UPDATE_PRODUCT_SUCCESS,
+      data: {},
+    };
+  }
+
+  async removeProductFromCart(cart: Cart, product: Product) {
+    const cartItem = await this.findCartItem(cart, product);
+    await this.cartItemRepo.remove(cartItem);
+    return {
+      message: cartMessages.success.CART_REMOVE_PRODUCT_SUCCESS,
+      data: {},
+    };
+  }
+
+  async findCartItem(cart: Cart, product: Product) {
+    const cartItem = await this.cartItemRepo.findOneBy({ cart, product });
+    if (!cartItem) {
+      throw new BadRequestException(cartMessages.error.CART_PRODUCT_NOT_FOUND);
+    }
+    return cartItem;
   }
 
   async updateProductQntInCart(cart: Cart, product, quantity: number) {
@@ -48,15 +77,17 @@ export class CartService {
   }
 
   async getCartWithProducts(cart: Cart) {
-    return this.cartRepo
+    const cartwithProducts = await this.cartRepo
       .createQueryBuilder('cart')
       .leftJoinAndSelect('cart.cartItems', 'cartItems')
       .leftJoinAndSelect('cartItems.product', 'products')
       .where('cart.cartId = :id', { id: cart.cartId })
       .getOne();
-  }
-
-  async getAllCart() {
-    return this.cartRepo.find();
+    return {
+      message: cartMessages.success.CART_FETCH_SUCCESS,
+      data: {
+        cart: cartwithProducts,
+      },
+    };
   }
 }

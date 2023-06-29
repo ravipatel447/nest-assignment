@@ -5,9 +5,16 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   OneToOne,
+  ManyToOne,
+  JoinColumn,
+  BeforeUpdate,
+  BeforeInsert,
+  AfterLoad,
 } from 'typeorm';
 import { Product, Order, Cart } from './';
+import { Role } from './role.entity';
 import { Token } from './token.entity';
+import * as bcrypt from 'bcryptjs';
 
 @Entity()
 export class User {
@@ -33,6 +40,9 @@ export class User {
   @Exclude()
   password: string;
 
+  @Column()
+  roleId: number;
+
   @OneToMany(() => Product, (product) => product.sellerId)
   products: Product[];
 
@@ -44,4 +54,23 @@ export class User {
 
   @OneToOne(() => Cart, (cart) => cart.customerId)
   cartId: Cart;
+
+  @ManyToOne(() => Role, (role) => role.users)
+  @JoinColumn({ name: 'roleId', referencedColumnName: 'roleId' })
+  role: Role;
+
+  @Exclude()
+  private tempPassword: string;
+
+  @AfterLoad()
+  private loadTempPassword(): void {
+    this.tempPassword = this.password;
+  }
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async encryptPassword(): Promise<void> {
+    if (this.tempPassword !== this.password) {
+      this.password = await bcrypt.hash(this.password, 8);
+    }
+  }
 }

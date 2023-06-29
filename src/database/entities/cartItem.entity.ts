@@ -12,10 +12,7 @@ export class CartItem {
   @Column()
   quantity: number;
 
-  @ManyToOne(() => Cart, (cart) => cart.cartItems, {
-    nullable: false,
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Cart, (cart) => cart.cartItems)
   @JoinColumn({
     name: 'cartId',
     referencedColumnName: 'cartId',
@@ -24,7 +21,6 @@ export class CartItem {
   public cart: Cart;
 
   @ManyToOne(() => Product, (product) => product.cartItems, {
-    nullable: false,
     onDelete: 'CASCADE',
   })
   @JoinColumn({

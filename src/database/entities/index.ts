@@ -5,3 +5,6 @@ export * from './orderDetails.entity';
 export * from './cart.entity';
 export * from './cartItem.entity';
 export * from './token.entity';
+export * from './role.entity';
+export * from './permission.entity';
+export * from './rolePermission';

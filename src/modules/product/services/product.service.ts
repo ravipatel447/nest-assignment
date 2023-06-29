@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product, User } from 'src/database/entities';
+import { CartItem, Product, User } from 'src/database/entities';
+import { productMessages } from 'src/messages/product.message';
 import { Repository } from 'typeorm';
 import { CreateProductDto, UpdateProductDto } from '../Dtos';
 
@@ -8,48 +9,79 @@ import { CreateProductDto, UpdateProductDto } from '../Dtos';
 export class ProductService {
   constructor(
     @InjectRepository(Product) private productRepo: Repository<Product>,
+    @InjectRepository(CartItem) private cartItemRepo: Repository<CartItem>,
   ) {}
 
   async create(data: CreateProductDto, seller: User) {
     const product = this.productRepo.create({ ...data, seller });
-    return this.productRepo.save(product);
+    await this.productRepo.save(product);
+    return {
+      message: productMessages.success.PRODUCT_CREATE_SUCCESS,
+      data: {
+        product,
+      },
+    };
   }
 
-  async update(productId: number, data: UpdateProductDto, user: User) {
-    const product = await this.findProductById(productId, {
-      sellerId: user.userId,
-    });
+  async update(
+    productId: number,
+    data: UpdateProductDto,
+    user: User,
+    alsoAllowedIfNotOwner = false,
+  ) {
+    const owner = {};
+    if (!alsoAllowedIfNotOwner) {
+      owner['sellerId'] = user.userId;
+    }
+    const product = await this.findProductById(productId, owner);
     Object.assign(product, data);
-    return this.productRepo.save(product);
+    await this.productRepo.save(product);
+    return {
+      message: productMessages.success.PRODUCT_UPDATION_SUCCESS,
+      data: {
+        product,
+      },
+    };
   }
 
-  async delete(productId: number, user: User) {
-    const product = await this.findProductById(productId, {
-      sellerId: user.userId,
+  async delete(productId: number, user: User, alsoAllowedIfNotOwner = false) {
+    const owner = {};
+    if (!alsoAllowedIfNotOwner) {
+      owner['sellerId'] = user.userId;
+    }
+    const product = await this.findProductById(productId, owner);
+    const cartItems = await this.cartItemRepo.findBy({
+      productId: product.productId,
     });
-    const productD = await this.productRepo.findOne({
-      where: { productId },
-      relations: ['cartItems'],
-    });
-    await this.productRepo
-      .createQueryBuilder('product')
-      .softDelete()
-      .where('product.productId = :id', { id: product.productId })
-      .execute();
-
-    await this.productRepo.softRemove(productD);
-    return 'Product Has been removed';
+    await this.cartItemRepo.remove(cartItems);
+    await this.productRepo.softRemove(product);
+    return {
+      message: productMessages.success.PRODUCT_DELETE_SUCCESS,
+      data: {},
+    };
   }
 
   async findProductById(productId: number, filters?: Partial<Product>) {
     const product = await this.productRepo.findOneBy({ productId, ...filters });
     if (!product) {
-      throw new NotFoundException('Product not found!');
+      throw new NotFoundException(productMessages.error.PRODUCT_NOT_FOUND);
     }
     return product;
   }
 
-  async findProducts() {
-    return this.productRepo.find({});
+  async findProducts(skip: number, take: number) {
+    const products = await this.productRepo.findAndCount({ skip, take });
+    return {
+      message: productMessages.success.PRODUCTS_FETCH_SUCCESS,
+      data: { products: products[0], totalProducts: products[1] },
+    };
+  }
+
+  async findUsersProducts(userId: number) {
+    const products = await this.productRepo.findBy({ sellerId: userId });
+    return {
+      message: productMessages.success.PRODUCTS_FETCH_SUCCESS,
+      data: { products: products[0], totalProducts: products[1] },
+    };
   }
 }

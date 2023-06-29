@@ -54,6 +54,28 @@ export class CartService {
     return cartItem;
   }
 
+  async updateProductQntInCart(cart: Cart, product, quantity: number) {
+    if (quantity === 0) return this.removeProductFromCart(cart, product);
+    const cartItem = await this.findCartItem(cart, product);
+    cartItem.quantity = quantity;
+    await this.cartItemRepo.save(cartItem);
+    return { message: 'product has been updated' };
+  }
+
+  async removeProductFromCart(cart: Cart, product: Product) {
+    const cartItem = await this.findCartItem(cart, product);
+    await this.cartItemRepo.remove(cartItem);
+    return { message: 'product has been removed' };
+  }
+
+  async findCartItem(cart: Cart, product: Product) {
+    const cartItem = await this.cartItemRepo.findOneBy({ cart, product });
+    if (!cartItem) {
+      throw new BadRequestException('Product Not Found In Your Cart');
+    }
+    return cartItem;
+  }
+
   async getCartWithProducts(cart: Cart) {
     const cartwithProducts = await this.cartRepo
       .createQueryBuilder('cart')

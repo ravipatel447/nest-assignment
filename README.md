@@ -26,24 +26,46 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Setup
+## installation
 
 ```bash
+
 # installing node modules
 $ npm install
 
-# running migrations
-$ npm run migration:run
+# make .env file for production with configirations like in .env.example
 
-# start development
-$ npm run start
+# make .dev.env file for development with configirations like in .env.example
+
+# make .test.env file for testing with configirations like in .env.example
+
+```
+
+## docker run production
+
+```bash
+# make .env file with configirations like in .env.example
+
+# docker compose up
+$ docker compose up
+
+```
+
+## docker run development
+
+```bash
+# make .dev.env file with configirations like in .env.example
+
+# docker compose up
+$ docker compose --env-file ./.dev.env up
+
 ```
 
 ## Running the app
 
 ```bash
-# development
-$ npm run start
+# production
+$ npm start
 
 # watch mode
 $ npm run start:dev
